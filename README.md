@@ -1,5 +1,9 @@
 # Hefesto 🔧
 
+<p align="center">
+  <img src="docs/hefesto.png" alt="Hefesto — AI car maintenance assistant" width="340" />
+</p>
+
 **An AI-powered car maintenance assistant.** Talk to it — in the web chat or on
 WhatsApp — and it keeps your vehicle's service history: it logs maintenance from a
 plain sentence, answers questions about your spending with real numbers from the
