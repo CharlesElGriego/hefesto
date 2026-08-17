@@ -1,0 +1,323 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+
+/*
+ * Hefesto design tokens (see DESIGN.md).
+ * "Premium light SaaS": cool near-white surfaces, deep slate ink, and one
+ * trustworthy blue accent reserved for brand + primary actions. Familiar and
+ * commercial (Stripe/Linear register). Dark mode is a cool-slate variant.
+ * Neutrals are tinted toward the accent hue (impeccable: never pure gray).
+ */
+@theme {
+  --color-surface: oklch(98.4% 0.003 245);
+  --color-raised: oklch(99.5% 0.002 245);
+  --color-sunken: oklch(95.4% 0.005 245);
+  --color-ink: oklch(25% 0.02 260);
+  --color-ink-soft: oklch(45% 0.015 255);
+  --color-ink-faint: oklch(63% 0.01 250);
+  --color-line: oklch(91% 0.005 245);
+  --color-accent: oklch(55% 0.2 262);
+  --color-accent-deep: oklch(47% 0.19 263);
+  --color-accent-tint: oklch(94.5% 0.03 255);
+  --color-ok: oklch(56% 0.13 150);
+  --color-warn: oklch(72% 0.14 80);
+  --color-danger: oklch(55% 0.2 25);
+
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: oklch(17.5% 0.012 255);
+    --color-raised: oklch(21.5% 0.014 255);
+    --color-sunken: oklch(26% 0.015 255);
+    --color-ink: oklch(94% 0.006 250);
+    --color-ink-soft: oklch(73% 0.01 252);
+    --color-ink-faint: oklch(55% 0.01 250);
+    --color-line: oklch(30% 0.012 255);
+    --color-accent: oklch(66% 0.17 258);
+    --color-accent-deep: oklch(73% 0.14 255);
+    --color-accent-tint: oklch(28% 0.07 260);
+    --color-ok: oklch(74% 0.13 155);
+    --color-warn: oklch(80% 0.13 90);
+    --color-danger: oklch(66% 0.19 25);
+  }
+}
+
+/*
+ * Elevation system — the difference between wireframe and product.
+ * Light: soft ink-tinted shadows. Dark: deeper, wider shadows.
+ */
+.card {
+  background: var(--color-raised);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px oklch(25% 0.02 260 / 0.05),
+    0 4px 16px oklch(25% 0.02 260 / 0.06);
+}
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow:
+      0 1px 2px oklch(0% 0 0 / 0.3),
+      0 6px 20px oklch(0% 0 0 / 0.25);
+  }
+}
+.card--hover {
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 150ms ease-out;
+}
+.card--hover:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px oklch(25% 0.02 260 / 0.06),
+    0 8px 24px oklch(25% 0.02 260 / 0.09);
+}
+
+/* Chat bubbles — the universal messenger language */
+.bubble--user {
+  background: var(--color-accent);
+  color: oklch(99% 0.002 245);
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 2px 10px oklch(55% 0.2 262 / 0.25);
+}
+.bubble--bot {
+  background: var(--color-raised);
+  border: 1px solid var(--color-line);
+  border-radius: 4px 18px 18px 18px;
+  box-shadow:
+    0 1px 2px oklch(25% 0.02 260 / 0.05),
+    0 3px 12px oklch(25% 0.02 260 / 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  .bubble--bot {
+    box-shadow: 0 2px 10px oklch(0% 0 0 / 0.25);
+  }
+}
+.avatar--bot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  color: oklch(99% 0.002 245);
+  flex-shrink: 0;
+  box-shadow: 0 1px 8px oklch(55% 0.2 262 / 0.3);
+}
+
+/* Animated horizontal bars (dashboard spending) */
+.bar__fill {
+  transition: width 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card--hover,
+  .bar__fill {
+    transition: none;
+  }
+}
+
+/* Keyboard accessibility: visible focus everywhere, accent-branded */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Small accent links: accent-deep in light for AA contrast at small sizes */
+.link--accent {
+  color: var(--color-accent-deep);
+  transition: color 120ms ease-out;
+}
+.link--accent:hover {
+  color: var(--color-accent);
+}
+@media (prefers-color-scheme: dark) {
+  .link--accent {
+    color: var(--color-accent);
+  }
+  .link--accent:hover {
+    color: var(--color-accent-deep);
+  }
+}
+
+/* Accent signature — subtle in light, a soft glow in dark. Brand + primary CTA only. */
+.glow--accent {
+  box-shadow: 0 1px 8px oklch(55% 0.2 262 / 0.28);
+}
+@media (prefers-color-scheme: dark) {
+  .glow--accent {
+    box-shadow: 0 0 16px oklch(66% 0.17 258 / 0.3);
+  }
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Chat message entry (DESIGN.md: 180ms ease-out-quint, slide + fade) */
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.msg--in {
+  animation: msg-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Typing indicator: three accent dots */
+@keyframes dot-pulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+.typing__dot {
+  animation: dot-pulse 1.1s ease-in-out infinite;
+}
+.typing__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg--in,
+  .typing__dot {
+    animation: none;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Form vocabulary — one consistent set across the app.
+   Naming follows BEM (block__element--modifier) for all custom classes. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-ink-soft);
+}
+.field__control {
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color 120ms ease-out;
+}
+.field__control:focus {
+  border-color: var(--color-accent);
+}
+/* iOS Safari auto-zooms the whole page when focusing any input with a
+   font-size under 16px — and never zooms back out. Keep every text control
+   at 16px on touch devices so the zoom never triggers. */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+/* Reactive-forms validation: red border once the user has touched the field. */
+.field__control.ng-invalid.ng-touched {
+  border-color: var(--color-danger);
+}
+.field__error {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+.btn--primary {
+  border-radius: 9999px;
+  background: var(--color-accent);
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-raised);
+  transition: background 120ms ease-out;
+}
+.btn--primary:hover {
+  background: var(--color-accent-deep);
+}
+.btn--ghost {
+  border-radius: 9999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  transition: background 120ms ease-out;
+}
+.btn--ghost:hover {
+  background: var(--color-sunken);
+}
+.btn--danger {
+  border-radius: 9999px;
+  background: var(--color-danger);
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-raised);
+  transition: filter 120ms ease-out;
+}
+.btn--danger:hover {
+  filter: brightness(0.92);
+}
+
+/* Shell navigation tabs (global: Tailwind utilities aren't available in component CSS) */
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-ink-faint);
+  transition: color 120ms ease-out;
+  flex: 1;
+}
+.tab:hover {
+  color: var(--color-ink-soft);
+}
+.tab--active {
+  color: var(--color-accent);
+}
+@media (min-width: 48rem) {
+  .tab {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .tab--active {
+    background: var(--color-accent-tint);
+    color: var(--color-accent-deep);
+  }
+}
