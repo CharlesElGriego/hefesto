@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+.DS_Store
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# WhatsApp session material (Baileys credentials/keys) and runtime state
+whatsapp-session*/
+*.bak
+allowed.json

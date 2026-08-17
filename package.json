@@ -1,0 +1,13 @@
+{
+  "name": "hefesto",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up -d mongo && concurrently -n api,web -c yellow,cyan \"npm run start:dev --prefix backend\" \"npm start --prefix frontend\"",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "logs": "docker compose logs -f app"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
