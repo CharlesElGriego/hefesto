@@ -1,0 +1,315 @@
+<section class="mx-auto w-full max-w-2xl px-4 pb-10 pt-6 md:pt-10">
+  <!-- Back + car header -->
+  <a
+    routerLink="/vehicle"
+    class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-4"
+      aria-hidden="true"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+    {{ t('g.back') }}
+  </a>
+
+  @if (vehicle(); as v) {
+    <header class="card mt-4 p-5">
+      <div class="flex items-center gap-4">
+        <span
+          class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-tint text-2xl"
+          aria-hidden="true"
+          >🚗</span
+        >
+        <div class="min-w-0 flex-1">
+          <h1 class="font-display text-[22px] font-bold leading-tight tracking-tight">
+            {{ v.make }} {{ v.model }}
+          </h1>
+          <p class="mt-0.5 text-sm text-ink-soft">
+            {{ v.year }}
+            @if (v.plate) {
+              · {{ v.plate }}
+            }
+          </p>
+        </div>
+        <p class="tabular whitespace-nowrap text-right text-sm text-ink-faint">
+          <span class="block font-display text-2xl font-bold text-ink">
+            {{ v.currentMileage.toLocaleString() }}
+          </span>
+          km
+        </p>
+      </div>
+      @if (records().length > 0) {
+        <div class="mt-4 flex items-baseline gap-6 border-t border-line pt-4">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
+              {{ t('dash.total') }}
+            </p>
+            <p class="tabular mt-0.5 font-display text-[26px] font-bold leading-none">
+              {{ money(totalSpend()) }}
+            </p>
+          </div>
+          <div class="tabular text-sm text-ink-soft">
+            {{
+              t('dash.across', {
+                n: records().length,
+                records: t(records().length === 1 ? 'dash.record' : 'dash.records'),
+              })
+            }}
+          </div>
+        </div>
+      }
+    </header>
+
+    <!-- Service history -->
+    <div class="mt-8 flex items-baseline justify-between">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-faint">
+        {{ t('g.history') }}
+      </h2>
+      @if (!addingRecord()) {
+        <button type="button" (click)="startAddRecord()" class="link--accent text-sm font-medium">
+          {{ t('g.addManually') }}
+        </button>
+      }
+    </div>
+
+    @if (addingRecord()) {
+      <form
+        [formGroup]="rf"
+        (ngSubmit)="submitRecordForm()"
+        class="mt-3 grid grid-cols-2 gap-3 card p-4"
+      >
+        <label class="field col-span-2">
+          <span class="field__label">{{ t('g.what') }}</span>
+          <input
+            class="field__control"
+            formControlName="description"
+            [placeholder]="t('g.whatPh')"
+          />
+          @if (errFor('description'); as e) {
+            <span class="field__error">{{ e }}</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field__label">{{ t('g.type') }}</span>
+          <select class="field__control" formControlName="type">
+            @for (t of typeOptions; track t.value) {
+              <option [value]="t.value">{{ t.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__label">{{ t('g.date') }}</span>
+          <input class="field__control" formControlName="date" type="date" />
+          @if (errFor('date'); as e) {
+            <span class="field__error">{{ e }}</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field__label">{{ t('g.cost') }}</span>
+          <input
+            class="field__control"
+            formControlName="cost"
+            type="number"
+            step="0.01"
+            [placeholder]="t('g.optional')"
+          />
+          @if (errFor('cost'); as e) {
+            <span class="field__error">{{ e }}</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field__label">{{ t('g.km') }}</span>
+          <input
+            class="field__control"
+            formControlName="mileage"
+            type="number"
+            [placeholder]="t('g.optional')"
+          />
+          @if (errFor('mileage'); as e) {
+            <span class="field__error">{{ e }}</span>
+          }
+        </label>
+        <label class="field col-span-2">
+          <span class="field__label">{{ t('g.workshop') }}</span>
+          <input
+            class="field__control"
+            formControlName="workshop"
+            [placeholder]="t('g.optional')"
+          />
+          @if (errFor('workshop'); as e) {
+            <span class="field__error">{{ e }}</span>
+          }
+        </label>
+        <div class="col-span-2 mt-1 flex justify-end gap-2">
+          <button type="button" (click)="cancelRecordForm()" class="btn--ghost">
+            {{ t('g.cancel') }}
+          </button>
+          <button type="submit" class="btn--primary">{{ t('g.addRecord') }}</button>
+        </div>
+      </form>
+    }
+
+    @if (records().length === 0 && !addingRecord() && !loadingRecords()) {
+      <p class="mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-soft">
+        {{ t('g.noRecords') }}
+      </p>
+    }
+
+    @if (records().length > 0) {
+      <ul class="mt-3 divide-y divide-line card">
+        @for (r of records(); track r.id) {
+          <li class="px-4 py-3.5">
+            @if (editingRecordId() === r.id) {
+              <form
+                [formGroup]="rf"
+                (ngSubmit)="submitRecordForm()"
+                class="grid grid-cols-2 gap-3 py-1"
+              >
+                <label class="field col-span-2">
+                  <span class="field__label">{{ t('g.what') }}</span>
+                  <input class="field__control" formControlName="description" />
+                  @if (errFor('description'); as e) {
+                    <span class="field__error">{{ e }}</span>
+                  }
+                </label>
+                <label class="field">
+                  <span class="field__label">{{ t('g.type') }}</span>
+                  <select class="field__control" formControlName="type">
+                    @for (t of typeOptions; track t.value) {
+                      <option [value]="t.value">{{ t.label }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field__label">{{ t('g.date') }}</span>
+                  <input class="field__control" formControlName="date" type="date" />
+                  @if (errFor('date'); as e) {
+                    <span class="field__error">{{ e }}</span>
+                  }
+                </label>
+                <label class="field">
+                  <span class="field__label">{{ t('g.cost') }}</span>
+                  <input class="field__control" formControlName="cost" type="number" step="0.01" />
+                  @if (errFor('cost'); as e) {
+                    <span class="field__error">{{ e }}</span>
+                  }
+                </label>
+                <label class="field">
+                  <span class="field__label">{{ t('g.km') }}</span>
+                  <input class="field__control" formControlName="mileage" type="number" />
+                  @if (errFor('mileage'); as e) {
+                    <span class="field__error">{{ e }}</span>
+                  }
+                </label>
+                <label class="field col-span-2">
+                  <span class="field__label">{{ t('g.workshop') }}</span>
+                  <input class="field__control" formControlName="workshop" />
+                  @if (errFor('workshop'); as e) {
+                    <span class="field__error">{{ e }}</span>
+                  }
+                </label>
+                <div class="col-span-2 flex justify-end gap-2">
+                  <button type="button" (click)="cancelRecordForm()" class="btn--ghost">
+                    {{ t('g.cancel') }}
+                  </button>
+                  <button type="submit" class="btn--primary">{{ t('g.saveChanges') }}</button>
+                </div>
+              </form>
+            } @else {
+              <div class="flex items-start gap-3">
+                <span
+                  class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent-tint text-lg"
+                >
+                  {{ glyph(r.type) }}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline justify-between gap-3">
+                    <p class="min-w-0 truncate text-sm font-semibold leading-snug">
+                      {{ r.description }}
+                    </p>
+                    @if (r.cost != null) {
+                      <p class="tabular shrink-0 font-display text-[15px] font-bold">
+                        {{ money(r.cost) }}
+                      </p>
+                    }
+                  </div>
+                  <p class="tabular mt-1 text-xs text-ink-soft">{{ meta(r) }}</p>
+                  <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span
+                      class="rounded-full bg-sunken px-2 py-0.5 text-[11px] font-medium text-ink-soft"
+                      >{{ typeLabel(r) }}</span
+                    >
+                    @if (r.workshop) {
+                      <span
+                        class="max-w-40 truncate rounded-full bg-sunken px-2 py-0.5 text-[11px] text-ink-soft"
+                        >📍 {{ r.workshop }}</span
+                      >
+                    }
+                    <span class="text-[11px] text-ink-faint">{{ sourceLabel(r) }}</span>
+                  </div>
+                </div>
+                <div class="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    (click)="startEditRecord(r)"
+                    [attr.aria-label]="t('g.editR')"
+                    class="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-sunken hover:text-ink"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="size-4"
+                    >
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="confirmDeleteId.set(r.id)"
+                    [attr.aria-label]="t('g.delR')"
+                    class="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-sunken hover:text-danger"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="size-4"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+
+  <app-confirm-dialog
+    [open]="confirmDeleteId() !== null"
+    [title]="t('dlg.deleteRecordTitle')"
+    [message]="t('dlg.deleteRecordMsg', { name: pendingDeleteRecord()?.description ?? '' })"
+    [confirmLabel]="t('dlg.delete')"
+    [cancelLabel]="t('g.cancel')"
+    (confirmed)="deleteRecord(confirmDeleteId()!)"
+    (cancelled)="confirmDeleteId.set(null)"
+  />
+</section>
