@@ -1,0 +1,174 @@
+<section class="mx-auto flex h-[calc(100dvh-3.75rem)] w-full max-w-2xl flex-col md:h-dvh">
+  <!-- Messenger-style header -->
+  <header
+    class="flex items-center gap-3 border-b border-line bg-raised/80 px-4 py-2.5 backdrop-blur-sm"
+  >
+    <span class="avatar--bot">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="size-4"
+      >
+        <path
+          d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+        />
+      </svg>
+    </span>
+    <div class="min-w-0 flex-1">
+      <h1 class="font-display text-[17px] font-bold leading-tight tracking-tight">Hefesto</h1>
+      <p class="flex items-center gap-1.5 text-[11px] text-ink-faint">
+        <span class="size-1.5 rounded-full bg-ok"></span>
+        {{ t('chat.online') }}
+      </p>
+    </div>
+  </header>
+
+  <div #scroller class="flex-1 overflow-y-auto px-4 pb-3 pt-4">
+    @if (messages().length === 0 && !sending()) {
+      <!-- First-run: teach the interface -->
+      <div class="flex h-full flex-col justify-center gap-7 pb-12">
+        <div>
+          <p class="font-display text-[1.7rem] font-bold leading-tight tracking-tight">
+            {{ t('chat.emptyTitle') }}
+          </p>
+          <p class="mt-2.5 max-w-[42ch] text-[15px] leading-relaxed text-ink-soft">
+            {{ t('chat.emptySub') }}
+          </p>
+        </div>
+        <div class="flex flex-col items-stretch gap-2.5">
+          @for (s of samples; track s) {
+            <button
+              type="button"
+              (click)="send(s)"
+              class="card card--hover flex items-center gap-3 px-4 py-3 text-left text-sm text-ink-soft hover:text-ink"
+            >
+              <span
+                class="grid size-7 shrink-0 place-items-center rounded-full bg-accent-tint text-accent-deep"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="size-3.5"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m13 6 6 6-6 6" />
+                </svg>
+              </span>
+              {{ s }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="space-y-3">
+      @for (m of messages(); track $index) {
+        @if (m.role === 'user') {
+          <div class="msg--in flex justify-end">
+            <div class="bubble--user max-w-[85%] px-4 py-2.5">
+              <p class="whitespace-pre-wrap text-[15px] leading-relaxed">{{ m.content }}</p>
+              <p class="mt-0.5 text-right text-[10px] opacity-70">{{ time(m.at) }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="msg--in flex items-end gap-2">
+            <span class="avatar--bot !size-[26px]" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-3"
+              >
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+                />
+              </svg>
+            </span>
+            <div class="min-w-0 max-w-[85%] space-y-2">
+              <div class="bubble--bot px-4 py-2.5">
+                <p class="whitespace-pre-wrap text-[15px] leading-relaxed">{{ m.content }}</p>
+                <p class="mt-0.5 text-right text-[10px] text-ink-faint">{{ time(m.at) }}</p>
+              </div>
+              @if (m.record) {
+                <app-record-card [record]="m.record" />
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @if (sending()) {
+        <div class="flex items-end gap-2" [attr.aria-label]="t('chat.typing')">
+          <span class="avatar--bot !size-[26px]" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-3"
+            >
+              <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+              />
+            </svg>
+          </span>
+          <div class="bubble--bot flex items-center gap-1 px-4 py-3.5">
+            <span class="typing__dot size-1.5 rounded-full bg-accent"></span>
+            <span class="typing__dot size-1.5 rounded-full bg-accent"></span>
+            <span class="typing__dot size-1.5 rounded-full bg-accent"></span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="border-t border-line bg-surface px-4 py-3">
+    <div
+      class="card flex items-center gap-2 !rounded-full py-1.5 pl-5 pr-1.5 transition-colors focus-within:border-accent"
+    >
+      <input
+        #box
+        type="text"
+        [value]="draft()"
+        (input)="draft.set(box.value)"
+        (keydown.enter)="send()"
+        [placeholder]="t('chat.placeholder')"
+        autocomplete="off"
+        class="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-ink-faint"
+      />
+      <button
+        type="button"
+        (click)="send()"
+        [disabled]="!draft().trim() || sending()"
+        [attr.aria-label]="t('chat.send')"
+        class="glow--accent grid size-9 shrink-0 place-items-center rounded-full bg-accent text-surface transition-all hover:bg-accent-deep active:scale-95 disabled:bg-line disabled:text-ink-faint disabled:shadow-none"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="size-4.5"
+        >
+          <path d="m5 12 7-7 7 7" />
+          <path d="M12 19V5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
